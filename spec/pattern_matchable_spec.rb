@@ -10,6 +10,7 @@ RSpec.describe PatternMatchable do
 
     context "valid method names" do
       let(:keys) { [:class, :__id__] }
+      it { is_expected.to be_kind_of Hash }
       it { is_expected.to match(class: target.class, __id__: target.__id__) }
     end
 

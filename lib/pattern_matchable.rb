@@ -2,7 +2,7 @@ require "pattern_matchable/version"
 
 module PatternMatchable
   def deconstruct_keys(keys)
-    keys.map { [_1, public_send(_1)] }.to_h
+    keys.to_h { [_1, public_send(_1)] }
   end
 
   refine Object do
