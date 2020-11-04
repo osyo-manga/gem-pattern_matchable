@@ -73,12 +73,17 @@ class Array
   include PatternMatchable
 end
 
-[1, 2, 3, 4, 5] in { first:, last: }
+# OK: assigned `first` `last` variables
+case [1, 2, 3, 4, 5]
+in { first:, last: }
+end
 p first  # => 1
 p last   # => 5
 
 # error: NoMatchingPatternError
-"Homu" in { downcase:, upcase: }
+case "Homu"
+in { downcase:, upcase: }
+end
 ```
 
 ### 2. `using PatternMatchable`
@@ -91,11 +96,15 @@ require "pattern_matchable"
 # defined Object#deconstruct_keys
 using PatternMatchable
 
-[1, 2, 3, 4, 5] in { first:, last: }
+case [1, 2, 3, 4, 5]
+in { first:, last: }
+end
 p first  # => 1
 p last   # => 5
 
-"Homu" in { downcase:, upcase: }
+case "Homu"
+in { downcase:, upcase: }
+end
 p downcase   # => "homu"
 p upcase     # => "HOMU"
 ```
@@ -110,12 +119,16 @@ require "pattern_matchable"
 # define Array#deconstruct_keys
 using PatternMatchable.refining Array
 
-[1, 2, 3, 4, 5] in { first:, last: }
+case [1, 2, 3, 4, 5]
+in { first:, last: }
+end
 p first  # => 1
 p last   # => 5
 
 # error: NoMatchingPatternError
-"Homu" in { downcase:, upcase: }
+case "Homu"
+in { downcase:, upcase: }
+end
 ```
 
 ### 4. `using PatternMatchable::#{class name}`
@@ -128,7 +141,9 @@ require "pattern_matchable"
 # define Array#deconstruct_keys
 using PatternMatchable::Array
 
-[1, 2, 3, 4, 5] in { first:, last: }
+case [1, 2, 3, 4, 5]
+in { first:, last: }
+end
 p first  # => 1
 p last   # => 5
 
@@ -136,12 +151,16 @@ p last   # => 5
 # defined Enumerator::Lazy
 using PatternMatchable::Enumerator::Lazy
 
-(1..10).lazy.map { _1 * 2 } in { first:, count: }
+case (1..10).lazy.map { _1 * 2 }
+in { first:, count: }
+end
 p first  # => 2
 p count  # => 10
 
 # error: NoMatchingPatternError
-"Homu" in { downcase:, upcase: }
+case "Homu"
+in { downcase:, upcase: }
+end
 ```
 
 
