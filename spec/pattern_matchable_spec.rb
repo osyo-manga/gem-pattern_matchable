@@ -55,4 +55,12 @@ RSpec.describe PatternMatchable do
       it { expect([].lazy.respond_to? :deconstruct_keys).to be_truthy }
     end
   end
+
+  describe "PatternMatchable" do
+    using PatternMatchable Array
+    using PatternMatchable String
+    it { expect([].respond_to? :deconstruct_keys).to be_truthy }
+    it { expect("".respond_to? :deconstruct_keys).to be_truthy }
+    it { expect(0.respond_to? :deconstruct_keys).to be_falsey }
+  end
 end

@@ -25,3 +25,7 @@ module PatternMatchable
     self.refining(Object.const_get(klass_name))
   end
 end
+
+def PatternMatchable(klass)
+  PatternMatchable.refining klass
+end

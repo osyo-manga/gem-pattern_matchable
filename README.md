@@ -163,6 +163,26 @@ in { downcase:, upcase: }
 end
 ```
 
+### 5. `using PatternMatchable {class name}`
+
+```ruby
+require "pattern_matchable"
+
+# define Array#deconstruct_keys
+using PatternMatchable Array
+
+case [1, 2, 3, 4, 5]
+in { first:, last: }
+end
+p first  # => 1
+p last   # => 5
+
+# error: NoMatchingPatternError
+case "Homu"
+in { downcase:, upcase: }
+end
+```
+
 
 ## Development
 
