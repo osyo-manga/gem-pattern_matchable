@@ -23,10 +23,7 @@ Or install it yourself as:
 ```ruby
 require "pattern_matchable"
 
-class Array
-  # defined #deconstruct_keys
-  include PatternMatchable
-end
+using PatternMatchable Array
 
 case [1, 2, 3]
 in first:, last:
@@ -34,10 +31,9 @@ in first:, last:
   # => "OK : 1, 3"
 end
 
+using PatternMatchable Time
 
 class Time
-  include PatternMatchable
-
   def to_four_seasons
     case self
     in month: (3..5)
@@ -60,30 +56,22 @@ p Time.local(2019, 10, 1).to_four_seasons  # => "autumn"
 p Time.local(2019, 12, 1).to_four_seasons  # => "winter"
 ```
 
-### 1. `include PatternMatchable`
+### 1. `using PatternMatchable {class name}`
 
-`include` and add `#deconstruct_keys` to any class / module.
+Use Refinements to add `{class name}#deconstruct_keys`.
 
 ```ruby
 require "pattern_matchable"
 
-# mixin PatternMatchable to Array
-# defined Array#deconstruct_keys
-class Array
-  include PatternMatchable
-end
+# define Array#deconstruct_keys
+using PatternMatchable Array
 
-# OK: assigned `first` `last` variables
-case [1, 2, 3, 4, 5]
-in { first:, last: }
-end
+[1, 2, 3, 4, 5] => { first:, last: }
 p first  # => 1
 p last   # => 5
 
-# error: NoMatchingPatternError
-case "Homu"
-in { downcase:, upcase: }
-end
+"Homu" in { downcase:, upcase: }
+# => false
 ```
 
 ### 2. `using PatternMatchable`
@@ -109,7 +97,33 @@ p downcase   # => "homu"
 p upcase     # => "HOMU"
 ```
 
-### 3. `using PatternMatchable.refining klass`
+### 3. `include PatternMatchable`
+
+`include` and add `#deconstruct_keys` to any class / module.
+
+```ruby
+require "pattern_matchable"
+
+# mixin PatternMatchable to Array
+# defined Array#deconstruct_keys
+class Array
+  include PatternMatchable
+end
+
+# OK: assigned `first` `last` variables
+case [1, 2, 3, 4, 5]
+in { first:, last: }
+end
+p first  # => 1
+p last   # => 5
+
+# error: NoMatchingPatternError
+case "Homu"
+in { downcase:, upcase: }
+end
+```
+
+### 4. `using PatternMatchable.refining klass`
 
 Add `#deconstruct_keys` to any class / module using Refinements.
 
@@ -129,7 +143,7 @@ in { downcase:, upcase: }
 end
 ```
 
-### 4. `using PatternMatchable::#{class name}`
+### 5. `using PatternMatchable::#{class name}`
 
 Use `Refinements` using `const_missing`.
 
@@ -152,22 +166,6 @@ using PatternMatchable::Enumerator::Lazy
 (1..10).lazy.map { _1 * 2 } => { first:, count: }
 p first  # => 2
 p count  # => 10
-
-"Homu" in { downcase:, upcase: }
-# => false
-```
-
-### 5. `using PatternMatchable {class name}`
-
-```ruby
-require "pattern_matchable"
-
-# define Array#deconstruct_keys
-using PatternMatchable Array
-
-[1, 2, 3, 4, 5] => { first:, last: }
-p first  # => 1
-p last   # => 5
 
 "Homu" in { downcase:, upcase: }
 # => false
