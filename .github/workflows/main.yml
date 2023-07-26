@@ -8,9 +8,9 @@ on:
   pull_request:
 
 jobs:
-  rereline:
+  pattern_matchable:
     name: >-
-      rereline ${{ matrix.os }} ${{ matrix.ruby }}
+      pattern_matchable ${{ matrix.os }} ${{ matrix.ruby }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
