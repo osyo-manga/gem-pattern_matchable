@@ -6,7 +6,7 @@ module PatternMatchable
   end
 
   refine Object do
-    if defined?(:import_methods)
+    if defined?(import_methods)
       import_methods PatternMatchable
     else
       include PatternMatchable
@@ -16,7 +16,7 @@ module PatternMatchable
   def self.refining(klass)
     Module.new {
       refine klass do
-        if defined?(:import_methods)
+        if defined?(import_methods)
           import_methods PatternMatchable
         else
           include PatternMatchable
