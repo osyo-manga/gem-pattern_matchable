@@ -119,9 +119,7 @@ require "pattern_matchable"
 # define Array#deconstruct_keys
 using PatternMatchable.refining Array
 
-case [1, 2, 3, 4, 5]
-in { first:, last: }
-end
+[1, 2, 3, 4, 5] => { first:, last: }
 p first  # => 1
 p last   # => 5
 
@@ -151,16 +149,12 @@ p last   # => 5
 # defined Enumerator::Lazy
 using PatternMatchable::Enumerator::Lazy
 
-case (1..10).lazy.map { _1 * 2 }
-in { first:, count: }
-end
+(1..10).lazy.map { _1 * 2 } => { first:, count: }
 p first  # => 2
 p count  # => 10
 
-# error: NoMatchingPatternError
-case "Homu"
-in { downcase:, upcase: }
-end
+"Homu" in { downcase:, upcase: }
+# => false
 ```
 
 ### 5. `using PatternMatchable {class name}`
@@ -171,16 +165,12 @@ require "pattern_matchable"
 # define Array#deconstruct_keys
 using PatternMatchable Array
 
-case [1, 2, 3, 4, 5]
-in { first:, last: }
-end
+[1, 2, 3, 4, 5] => { first:, last: }
 p first  # => 1
 p last   # => 5
 
-# error: NoMatchingPatternError
-case "Homu"
-in { downcase:, upcase: }
-end
+"Homu" in { downcase:, upcase: }
+# => false
 ```
 
 
