@@ -6,13 +6,21 @@ module PatternMatchable
   end
 
   refine Object do
-    include PatternMatchable
+    if defined?(:import_methods)
+      import_methods PatternMatchable
+    else
+      include PatternMatchable
+    end
   end
 
   def self.refining(klass)
     Module.new {
       refine klass do
-        include PatternMatchable
+        if defined?(:import_methods)
+          import_methods PatternMatchable
+        else
+          include PatternMatchable
+        end
       end
 
       define_singleton_method(:const_missing) { |nested_name|
