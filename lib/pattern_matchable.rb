@@ -1,4 +1,4 @@
-require "pattern_matchable/version"
+require_relative "pattern_matchable/version"
 
 module PatternMatchable
   def deconstruct_keys(keys)
