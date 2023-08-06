@@ -16,10 +16,18 @@ module PatternMatchable
   def self.refining(klass)
     Module.new {
       refine klass do
-        if defined?(import_methods)
-          import_methods PatternMatchable
-        else
-          include PatternMatchable
+        def deconstruct_keys(keys)
+          if defined? super
+            super.then { |result|
+              result.merge((keys - result.keys).to_h { [_1, public_send(_1)] })
+            }
+          else
+            keys.to_h { [_1, public_send(_1)] }
+          end
+        end
+
+        def respond_to?(name, ...)
+          name == :deconstruct_keys || super
         end
       end
 

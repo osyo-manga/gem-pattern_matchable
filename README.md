@@ -30,30 +30,6 @@ in first:, last:
   pp "OK : #{first}, #{last}"
   # => "OK : 1, 3"
 end
-
-using PatternMatchable Time
-
-class Time
-  def to_four_seasons
-    case self
-    in month: (3..5)
-      "spring"
-    in month: (6..8)
-      "summer"
-    in month: (9..11)
-      "autumn"
-    in { month: (1..2) } | { month: 12 }
-      "winter"
-    end
-  end
-end
-
-p Time.local(2019, 1, 1).to_four_seasons   # => "winter"
-p Time.local(2019, 3, 1).to_four_seasons   # => "spring"
-p Time.local(2019, 5, 1).to_four_seasons   # => "spring"
-p Time.local(2019, 8, 1).to_four_seasons   # => "summer"
-p Time.local(2019, 10, 1).to_four_seasons  # => "autumn"
-p Time.local(2019, 12, 1).to_four_seasons  # => "winter"
 ```
 
 ### 1. `using PatternMatchable {class name}`
@@ -171,6 +147,63 @@ p count  # => 10
 # => false
 ```
 
+## NOTE: Classes with `#deconstruct_keys` or `#respond_to?` defined will not work with `using PatternMatchable`.
+
+```ruby
+require "pattern_matchable"
+
+class X
+  def respond_to?(...)
+    super
+  end
+end
+
+using PatternMatchable
+
+# NoMatchingPatternKeyError
+case { name: "homu", age: 14 }
+in { first:, count: }
+else
+end
+
+
+# NoMatchingPatternKeyError
+case X.new
+in { __id__: }
+else
+end
+```
+
+For example, `ActiveRecord::Base`.
+In this case, you must use `using PatternMatchable X`.
+
+```ruby
+require "pattern_matchable"
+
+class X
+  def respond_to?(...)
+    super
+  end
+end
+
+using PatternMatchable Hash
+using PatternMatchable X
+
+case { name: "homu", age: 14 }
+in { first:, count: }
+  pp "ok: #{first}: #{count}"
+  # => "ok: [:name, \"homu\"]: 2"
+else
+end
+
+
+case X.new
+in { __id__: }
+  pp "ok: #{__id__}"
+  # => "ok: 880"
+else
+end
+```
 
 ## Development
 

@@ -4,41 +4,150 @@ RSpec.describe PatternMatchable do
   end
 
   describe "#deconstruct_keys" do
-    let(:klass) { Class.new }
-    let(:target) { klass.class_eval { include PatternMatchable }; klass.new }
     subject { target.deconstruct_keys keys }
 
-    context "valid method names" do
-      let(:keys) { [:class, :__id__] }
-      it { is_expected.to be_kind_of Hash }
-      it { is_expected.to match(class: target.class, __id__: target.__id__) }
+    context "include PatternMatchable" do
+      let(:klass) { Class.new }
+      let(:target) { klass.class_eval { include PatternMatchable }; klass.new }
+
+      context "valid method names" do
+        let(:keys) { [:itself, :__id__] }
+        it { is_expected.to be_kind_of Hash }
+        it { is_expected.to match(itself: target, __id__: target.__id__) }
+      end
+
+      context "invalid method names" do
+        let(:keys) { [:hoge, :foo] }
+        it { expect { subject }.to raise_error NoMethodError }
+      end
     end
 
-    context "invalid method names" do
-      let(:keys) { [:hoge, :foo] }
-      it { expect { subject }.to raise_error NoMethodError }
-    end
-  end
-
-  describe ".using" do
-    context "using" do
+    context "using PatternMatchable" do
       using PatternMatchable
+
+      # MEMO: be to #deconstruct_keys after using.
+      subject { target.deconstruct_keys keys }
+
       it { expect("".respond_to? :deconstruct_keys).to be_truthy }
       it { expect(0.respond_to? :deconstruct_keys).to be_truthy }
+
+      context "not defined #deconstruct_keys and #respond_to?" do
+        let(:target) { Class.new.new }
+        let(:keys) { [:itself, :__id__] }
+
+        it { is_expected.to be_kind_of Hash }
+        it { is_expected.to match(itself: target, __id__: target.__id__) }
+      end
+
+      # Not supported
+      context "defined #deconstruct_keys" do
+        let(:target) { { name: "homu" } }
+        let(:keys) { [:itself, :__id__, :name] }
+
+        it { is_expected.to be_kind_of Hash }
+        it { is_expected.to match(name: "homu") }
+      end
     end
 
-    context "no using" do
-      it { expect("".respond_to? :deconstruct_keys).to be_falsey }
-      it { expect(0.respond_to? :deconstruct_keys).to be_falsey }
+    context "using PatternMatchable X" do
+      context "not defined #deconstruct_keys and #respond_to?" do
+        class X; end
+        using PatternMatchable X
+
+        # MEMO: be to #deconstruct_keys after using.
+        subject { target.deconstruct_keys keys }
+
+        let(:target) { X.new }
+        let(:keys) { [:itself, :__id__] }
+
+        it { is_expected.to be_kind_of Hash }
+        it { is_expected.to match(itself: target, __id__: target.__id__) }
+      end
+
+      context "defined #deconstruct_keys" do
+        using PatternMatchable Hash
+
+        # MEMO: be to #deconstruct_keys after using.
+        subject { target.deconstruct_keys keys }
+
+        let(:target) { { name: "homu" } }
+        let(:keys) { [:name, :itself, :__id__] }
+
+        it { is_expected.to be_kind_of Hash }
+        it { is_expected.to match(name: "homu", itself: target.class, __id__: target.__id__) }
+      end
     end
   end
 
-  describe ".refining" do
-    using PatternMatchable.refining Array
-    using PatternMatchable.refining String
-    it { expect([].respond_to? :deconstruct_keys).to be_truthy }
-    it { expect("".respond_to? :deconstruct_keys).to be_truthy }
-    it { expect(0.respond_to? :deconstruct_keys).to be_falsey }
+  describe "pattern match" do
+    describe "using PatternMatchable" do
+      # MEMO: defined before using.
+      class WithDefinedRespondTo
+        def respond_to?(...)
+          super
+        end
+      end
+
+      using PatternMatchable
+
+      # MEMO: be to #deconstruct_keys after using.
+      subject { target in { itself: ^(target), __id__: ^(target.__id__) } }
+
+      context "not defined #deconstruct_keys and #respond_to?" do
+        let(:target) { Class.new.new }
+
+        it { is_expected.to eq true }
+      end
+
+      context "defined #deconstruct_keys" do
+        let(:target) { {} }
+
+        it { is_expected.to eq false }
+      end
+
+      # Not supported
+      context "defined #respond_to?" do
+        let(:target) { WithDefinedRespondTo.new }
+
+        it { is_expected.to eq false }
+      end
+    end
+
+    describe "using PatternMatchable X" do
+      context "not defined #deconstruct_keys and #respond_to?" do
+        class X; end
+        using PatternMatchable X
+
+        # MEMO: be to #deconstruct_keys after using.
+        subject { target in { itself: ^(target), __id__: ^(target.__id__) } }
+
+        let(:target) { X.new }
+
+        it { is_expected.to eq true }
+      end
+
+      context "defined #deconstruct_keys" do
+        using PatternMatchable Hash
+
+        # MEMO: be to #deconstruct_keys after using.
+        subject { target in { itself: ^(target), __id__: ^(target.__id__) } }
+
+        let(:target) { {} }
+
+        it { is_expected.to eq true }
+      end
+
+      context "defined #respond_to?" do
+        using PatternMatchable WithDefinedRespondTo
+
+        # MEMO: be to #deconstruct_keys after using.
+        subject { target in { itself: ^(target), __id__: ^(target.__id__) } }
+
+        let(:target) { WithDefinedRespondTo.new }
+
+        it { is_expected.to eq true }
+      end
+    end
   end
 
   describe ".const_missing" do
@@ -54,13 +163,5 @@ RSpec.describe PatternMatchable do
       using PatternMatchable::Enumerator::Lazy
       it { expect([].lazy.respond_to? :deconstruct_keys).to be_truthy }
     end
-  end
-
-  describe "PatternMatchable" do
-    using PatternMatchable Array
-    using PatternMatchable String
-    it { expect([].respond_to? :deconstruct_keys).to be_truthy }
-    it { expect("".respond_to? :deconstruct_keys).to be_truthy }
-    it { expect(0.respond_to? :deconstruct_keys).to be_falsey }
   end
 end
