@@ -91,25 +91,25 @@ RSpec.describe PatternMatchable do
       using PatternMatchable
 
       # MEMO: be to #deconstruct_keys after using.
-      subject { target in { itself: ^(target), __id__: ^(target.__id__) } }
+      subject { target => { itself: , __id__: }; { itself: itself, __id__: __id__ } }
 
       context "not defined #deconstruct_keys and #respond_to?" do
         let(:target) { Class.new.new }
 
-        it { is_expected.to eq true }
+        it { is_expected.to match(itself: target, __id__: target.__id__) }
       end
 
       context "defined #deconstruct_keys" do
         let(:target) { {} }
 
-        it { is_expected.to eq false }
+        it { expect { subject }.to raise_error(NoMatchingPatternError) }
       end
 
       # Not supported
       context "defined #respond_to?" do
         let(:target) { WithDefinedRespondTo.new }
 
-        it { is_expected.to eq false }
+        it { expect { subject }.to raise_error(NoMatchingPatternError) }
       end
     end
 
@@ -119,33 +119,33 @@ RSpec.describe PatternMatchable do
         using PatternMatchable X
 
         # MEMO: be to #deconstruct_keys after using.
-        subject { target in { itself: ^(target), __id__: ^(target.__id__) } }
+        subject { target => { itself: , __id__: }; { itself: itself, __id__: __id__ } }
 
         let(:target) { X.new }
 
-        it { is_expected.to eq true }
+        it { is_expected.to match(itself: target, __id__: target.__id__) }
       end
 
       context "defined #deconstruct_keys" do
         using PatternMatchable Hash
 
         # MEMO: be to #deconstruct_keys after using.
-        subject { target in { itself: ^(target), __id__: ^(target.__id__) } }
+        subject { target => { itself: , __id__: }; { itself: itself, __id__: __id__ } }
 
         let(:target) { {} }
 
-        it { is_expected.to eq true }
+        it { is_expected.to match(itself: target, __id__: target.__id__) }
       end
 
       context "defined #respond_to?" do
         using PatternMatchable WithDefinedRespondTo
 
         # MEMO: be to #deconstruct_keys after using.
-        subject { target in { itself: ^(target), __id__: ^(target.__id__) } }
+        subject { target => { itself: , __id__: }; { itself: itself, __id__: __id__ } }
 
         let(:target) { WithDefinedRespondTo.new }
 
-        it { is_expected.to eq true }
+        it { is_expected.to match(itself: target, __id__: target.__id__) }
       end
     end
   end
