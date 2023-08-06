@@ -80,7 +80,7 @@ RSpec.describe PatternMatchable do
   end
 
   describe "pattern match" do
-    describe "using PatternMatchable" do
+    context "using PatternMatchable" do
       # MEMO: defined before using.
       class WithDefinedRespondTo
         def respond_to?(...)
@@ -113,7 +113,7 @@ RSpec.describe PatternMatchable do
       end
     end
 
-    describe "using PatternMatchable X" do
+    context "using PatternMatchable X" do
       context "not defined #deconstruct_keys and #respond_to?" do
         class X; end
         using PatternMatchable X
