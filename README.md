@@ -32,9 +32,9 @@ in first:, last:
 end
 ```
 
-### 1. `using PatternMatchable {class name}`
+### 1. `using PatternMatchable {class names}`
 
-Use Refinements to add `{class name}#deconstruct_keys`.
+Use Refinements to add `{class names}#deconstruct_keys`.
 
 ```ruby
 require "pattern_matchable"

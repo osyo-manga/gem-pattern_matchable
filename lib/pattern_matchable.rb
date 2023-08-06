@@ -13,27 +13,29 @@ module PatternMatchable
     end
   end
 
-  def self.refining(klass)
+  def self.refining(*klasses)
     Module.new {
-      refine klass do
-        def deconstruct_keys(keys)
-          if defined? super
-            super.then { |result|
-              result.merge((keys - result.keys).to_h { [_1, public_send(_1)] })
-            }
-          else
-            keys.to_h { [_1, public_send(_1)] }
+      klasses.each do |klass|
+        refine klass do
+          def deconstruct_keys(keys)
+            if defined? super
+              super.then { |result|
+                result.merge((keys - result.keys).to_h { [_1, public_send(_1)] })
+              }
+            else
+              keys.to_h { [_1, public_send(_1)] }
+            end
+          end
+
+          def respond_to?(name, ...)
+            name == :deconstruct_keys || super
           end
         end
 
-        def respond_to?(name, ...)
-          name == :deconstruct_keys || super
-        end
+        define_singleton_method(:const_missing) { |nested_name|
+          PatternMatchable.refining Object.const_get("#{klass.name}::#{nested_name}")
+        }
       end
-
-      define_singleton_method(:const_missing) { |nested_name|
-        PatternMatchable.refining Object.const_get("#{klass.name}::#{nested_name}")
-      }
     }
   end
 
@@ -42,6 +44,6 @@ module PatternMatchable
   end
 end
 
-def PatternMatchable(klass)
-  PatternMatchable.refining klass
+def PatternMatchable(*klasses)
+  PatternMatchable.refining *klasses
 end
