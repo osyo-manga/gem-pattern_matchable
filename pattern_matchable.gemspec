@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{call method with pattern match.}
   spec.description   = %q{call method with pattern match.}
-  spec.homepage      = ""
+  spec.homepage      = "https://github.com/osyo-manga/gem-pattern_matchable"
   spec.required_ruby_version = Gem::Requirement.new(">= 2.3.0")
 
   # Specify which files should be added to the gem when it is released.
